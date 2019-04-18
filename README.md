@@ -25,7 +25,7 @@ Due: Sometime (cant be bothered to look it up)
 
 3. Morphology:
 
-   a. A program to apply any of six morphological operations on an image by using a 3 pixel horizontal window, to which all will return a new binary image
+   a. A program to apply any of six morphological operations on an image by using a 5 pixel cross window, to which all will return a new binary image
 
    - dilation: Uses OR operations
    - erosion: Uses AND operations

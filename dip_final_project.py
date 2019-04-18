@@ -55,9 +55,9 @@ def main():
     else:
         threshold = args.mask
 
+    
     bin_img_obj = bi.Binary()
     otsu_img_obj = mono.Monochrome()
-
     
     if threshold in ['normal']:
         hist = bin_img_obj.compute_histogram(input_image)
