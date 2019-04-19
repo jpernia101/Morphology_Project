@@ -1,19 +1,26 @@
 from tkinter import *
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import tkinter as tk
 import os
 from PIL import ImageTk, Image
 import cv2
-import Binary
+import Binary, Morphology
 from datetime import datetime
 
+#TODO: 
+#fixing the scroll or resizing
+#initial image disappears after we press process
+#add descriptions for each morphological operation
+#Add skeletization and boundary extraction
+#add the otsu's algorithm and greyscale algorithm
+#add functions that are ran on greyscale images
 
 
-global inputImage
+inputImage = []
 global label
 global finalLabel
-global imageTypeValue
-global funcType
+imageTypeValue = 0
+funcType = 0
 
 
 def getImage(self):
@@ -23,8 +30,10 @@ def getImage(self):
         filetypes = (("jpeg files","*.jpg *.jpeg"),("png files","*.png")))
 
     #this makes the input image into a matrix
+    global inputImage
     inputImage = cv2.imread(imageLocation, 0)
     print(inputImage)
+
     img = ImageTk.PhotoImage(file = imageLocation)  #Image.open(imageLocation))
     label = tk.Label(root, image = img).grid(row = 10, columnspan = 6)
     label.image = img
@@ -33,65 +42,55 @@ def getImage(self):
 
 
 def getImageType():
-    imageTypeValue = binaryGreyValue.get()
-    print(imageTypeValue)
-    print("changed value")
-    # if imageTypeValue == 2:
-    #     method.set("greyscale")
-    # elif imageTypeValue == 1:
-        # method.set("binary")
-
-    #return the new discolored image    
+    global imageTypeValue
+    imageTypeValue = binaryGreyValue.get()    
     return
 
 
 
 
 def getFunctionType():
-    print("changing the function")
+    global funcType
     funcType = functionTypeValue.get()
-    print(funcType)
     return
 
 
 
 
 def makeGreyOrBinary():
-    if imageTypeValue == 2: #greyscale
+    if imageTypeValue == 2: #greyscale (Otsu's)
         print("greyscale")
-        #greyscale function on the image
     elif imageTypeValue == 1:
+
         binaryObj = Binary.Binary()
-        
         histogram = binaryObj.compute_histogram(inputImage)
         optThreshold = binaryObj.find_optimal_threshold(histogram, inputImage)
-        binaryObj.binarize(inputImage, optThreshold)
+        returnImage = binaryObj.binarize(inputImage, optThreshold)
+
+    return returnImage
 
 
-        print("h")
+def runFunction(updatedImage):
+    morphologyObj = Morphology.Morphology()
 
-    return
-
-
-def runFunction():
     if funcType == 1:
         #Erosion
-        print("h")
+        finalImage = morphologyObj.erosion(updatedImage)
     elif funcType == 2:
         #Dilation
-        print("h")
+        finalImage = morphologyObj.dilate(updatedImage)
     elif funcType == 3:
         #Opening
-        print("h")
+        finalImage = morphologyObj.open(updatedImage)
     elif funcType == 4:
         #Closing
-        print("h")
+        finalImage = morphologyObj.close(updatedImage)
     elif funcType == 5:
         #Open-Close
-        print("h")
+        finalImage = morphologyObj.open_close(updatedImage)
     elif funcType == 6:
         #Close-Open
-        print("h")
+        finalImage = morphologyObj.close_open(updatedImage)
     elif funcType == 7:
         #Skeletanization
         print("h")
@@ -99,20 +98,18 @@ def runFunction():
         #Boundary Extraction
         print("h")
 
+    return finalImage
+
 
 
 def processImage(self):
-    print("processing")
+
     if(imageTypeValue == 0 or funcType == 0 or inputImage == []):
-        print(imageTypeValue)
-        print(funcType)
-        print(inputImage)
-        print("alert goes here")
+        messagebox.showerror("Error", "You didn't fill out all the options!")
         return
 
-    print("function")
-    makeGreyOrBinary()
-    print("after functions")
+    greyOrBinaryImage = makeGreyOrBinary()
+    prcoessedImage = runFunction(greyOrBinaryImage)
 
     curDir = os.getcwd()
 
@@ -120,11 +117,11 @@ def processImage(self):
 
     print(curDir)
 
-    outputImageName = curDir + outputDir + "curImage" + datetime().now().strftime("%m%d-%H%M%S")+".jpg"
-    cv2.imwrite(outputImageName, inputImage)    
+    outputImageName = curDir + outputDir + "curImage.jpg" #+ datetime().now().strftime("%m%d-%H%M%S")+".jpg"
+    cv2.imwrite(outputImageName, prcoessedImage)    
 
     finalImage = ImageTk.PhotoImage(file = outputImageName)  #Image.open(imageLocation))
-    finalLabel = tk.Label(root, image = finalImage).grid(row = 31, columnspan = 6)
+    finalLabel = tk.Label(root, image = finalImage).grid(row = 101, columnspan = 6)
     finalLabel.image = finalImage
 
 
@@ -132,14 +129,10 @@ def processImage(self):
 
 
 
-# def getImageMethod(event):
-#
-# def getDescription(event):
-
-
 
 
 root = Tk()
+scrollbar = Scrollbar(root)
 
 
 Label(root, text= "Upload a binary or greyscale image").grid(row=0, columnspan = 3, sticky=W)
@@ -175,7 +168,7 @@ loadImageButton.grid(row=6, column=0)
 
 processImageButton = Button(root, text = "Process")
 processImageButton.bind("<Button-1>", processImage)
-processImageButton.grid(row = 30, column = 0, sticky = W)
+processImageButton.grid(row = 100, column = 0, sticky = W)
 
 
 
@@ -185,16 +178,6 @@ processImageButton.grid(row = 30, column = 0, sticky = W)
 
 
 
-
-
-
-
-
-
-
-
-
-# processImageButton.bind("<Button-1>", processImage)
 
 
 # Label(root, text= "Description").grid(row=5, column=1, sticky=W)
