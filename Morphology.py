@@ -14,7 +14,7 @@ class Morphology:
 
         final_img = image.copy()
 
-        for i in range(0, np.size(image,0)):
+        for i in range(0, np.size(image,0) - 1):
             top = i - 1
             bottom = i + 1
             if top < 0:
@@ -22,7 +22,7 @@ class Morphology:
             if bottom > np.size(image,0):
                 bottom = np.size(image,0)
 
-            for j in range(0,np.size(image,1)):
+            for j in range(0,np.size(image,1) - 1):
                 left = j - 1
                 right = j + 1
                 if left < 0:
@@ -45,8 +45,9 @@ class Morphology:
         returns: a binary image"""
         
         final_img = image.copy()
+         
 
-        for i in range(0, np.size(image,0)):
+        for i in range(0, np.size(image , 0) - 1):
             top = i - 1
             bottom = i + 1
             if top < 0:
@@ -54,7 +55,7 @@ class Morphology:
             if bottom > np.size(image,0):
                 bottom = np.size(image,0)
 
-            for j in range(0,np.size(image,1)):
+            for j in range(0,np.size(image , 1) - 1):
                 left = j - 1
                 right = j + 1
                 if left < 0:
@@ -62,6 +63,14 @@ class Morphology:
                 if right > np.size(image,1):
                     right = np.size(image,1)
                 
+                # print(i)
+                # print(top)
+                # print(bottom)
+                # print(j)
+                # print(left)
+                # print(right)
+
+
                 #perform function
                 if (image[top][j] and image[bottom][j] and image[i][left] and image[i][right] and image[i][j]) == 255:
                     final_img[i][j] = 255
